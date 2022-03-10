@@ -15,4 +15,10 @@ contract AMM {
         reserveTwd += twdIn;
         reserveUsd -= usdOut;
     }
+
+    function exchangeTWD(uint usdIn) public returns (uint twdOut) {
+        twdOut = reserveTwd - ((reserveTwd * reserveUsd) / (reserveUsd + usdIn));
+        reserveTwd -= twdOut;
+        reserveUsd += usdIn;
+    }
 }

@@ -21,7 +21,7 @@ contract('AMM', (accounts) => {
         await amm.exchangeUSD(6000) // actually send transaction
     })
 
-    it('Should update reserved TWD and USD.', async () => {
+    it('Should update reserved TWD and USD after USD exchanged.', async () => {
         let amm = await AMM.deployed();
 
         let updatedRt = await amm.reserveTwd.call()
@@ -29,6 +29,25 @@ contract('AMM', (accounts) => {
 
         assert.equal(updatedRt.valueOf(), 16000)
         assert.equal(updatedRu.valueOf(), 625)
+    })
+
+    it('Should exchange TWD success.', async () => {
+        let amm = await AMM.deployed();
+
+        let usdOut = await amm.exchangeTWD.call(625) // dry-run
+        assert.equal(usdOut.valueOf(), 8000)
+
+        await amm.exchangeTWD(625) // actually send transaction
+    })
+
+    it('Should update reserved TWD and USD after TWD exchanged.', async () => {
+        let amm = await AMM.deployed();
+
+        let updatedRt = await amm.reserveTwd.call()
+        let updatedRu = await amm.reserveUsd.call()
+
+        assert.equal(updatedRt.valueOf(), 8000)
+        assert.equal(updatedRu.valueOf(), 1250)
     })
 
 })
