@@ -9,4 +9,10 @@ contract AMM {
         reserveTwd = Rt;
         reserveUsd = Ru;
     }
+
+    function exchangeUSD(uint twdIn) public returns (uint usdOut) {
+        usdOut = reserveUsd - ((reserveTwd * reserveUsd) / (reserveTwd + twdIn));
+        reserveTwd += twdIn;
+        reserveUsd -= usdOut;
+    }
 }

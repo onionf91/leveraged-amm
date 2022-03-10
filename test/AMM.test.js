@@ -5,11 +5,30 @@ contract('AMM', (accounts) => {
     it('Should put 10000 Rt and 1000 Ru in the contract.', async () => {
         let amm = await AMM.deployed();
 
-        let initRt = await amm.reserveTwd()
-        let initRu = await amm.reserveUsd()
+        let initRt = await amm.reserveTwd.call()
+        let initRu = await amm.reserveUsd.call()
 
         assert.equal(initRt.valueOf(), 10000)
         assert.equal(initRu.valueOf(), 1000)
+    })
+
+    it('Should exchange USD success.', async () => {
+        let amm = await AMM.deployed();
+
+        let usdOut = await amm.exchangeUSD.call(6000) // dry-run
+        assert.equal(usdOut.valueOf(), 375)
+
+        await amm.exchangeUSD(6000) // actually send transaction
+    })
+
+    it('Should update reserved TWD and USD.', async () => {
+        let amm = await AMM.deployed();
+
+        let updatedRt = await amm.reserveTwd.call()
+        let updatedRu = await amm.reserveUsd.call()
+
+        assert.equal(updatedRt.valueOf(), 16000)
+        assert.equal(updatedRu.valueOf(), 625)
     })
 
 })
