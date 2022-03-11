@@ -105,7 +105,7 @@ contract('LeveragedAMM', (accounts) => {
         assert.equal(reserveUsdc.valueOf(), 5400)
     })
 
-    it('Alice: check position and remain value before open position.', async () => {
+    it('Alice: check position and remain value after open 8x position.', async () => {
         let accountRemainPositionValue = await lAmm.ethPositionRemainValueOf.call(alice)
         let ethPositionValue = await lAmm.ethPositionValueOf.call(alice)
 
@@ -113,7 +113,7 @@ contract('LeveragedAMM', (accounts) => {
         assert.equal(ethPositionValue.valueOf(), 400)
     })
 
-    it('Alice: open 2x position should also update reserves.', async () => {
+    it('Alice: open additional 2x position should also update reserves.', async () => {
         await lAmm.openEthPosition(50 * 2, {from: alice})
 
         let reserveEth = await lAmm.reserveEth.call()
@@ -123,7 +123,7 @@ contract('LeveragedAMM', (accounts) => {
         assert.equal(reserveUsdc.valueOf(), 5500)
     })
 
-    it('Alice: check position and remain value before open position.', async () => {
+    it('Alice: check position and remain value after open 10x position.', async () => {
         let accountRemainPositionValue = await lAmm.ethPositionRemainValueOf.call(alice)
         let ethPositionValue = await lAmm.ethPositionValueOf.call(alice)
 
@@ -133,6 +133,46 @@ contract('LeveragedAMM', (accounts) => {
 
     it('Alice: open another position should failed.', async () => {
         await catchRevert(lAmm.openEthPosition.call(50, {from: alice}))
+    })
+
+    it('Alice: close 5x position should also update reserves.', async () => {
+        await lAmm.closeEthPosition(50 * 5, {from: alice})
+
+        let reserveEth = await lAmm.reserveEth.call()
+        let reserveUsdc = await lAmm.reserveUsdc.call()
+
+        assert.equal(web3.utils.fromWei(reserveEth.valueOf(), 'ether'), 1.90909090909090909)
+        assert.equal(reserveUsdc.valueOf(), 5238)
+    })
+
+    it('Alice: check position and remain value after close 5x position.', async () => {
+        let accountRemainPositionValue = await lAmm.ethPositionRemainValueOf.call(alice)
+        let ethPositionValue = await lAmm.ethPositionValueOf.call(alice)
+        let usdcCash = await lAmm.usdcCashOf.call(alice)
+
+        assert.equal(accountRemainPositionValue.valueOf(), 370)
+        assert.equal(ethPositionValue.valueOf(), 250)
+        assert.equal(usdcCash.valueOf(), 62)
+    })
+
+    it('Alice: close left 5x position should also update reserves.', async () => {
+        await lAmm.closeEthPosition(250, {from: alice})
+
+        let reserveEth = await lAmm.reserveEth.call()
+        let reserveUsdc = await lAmm.reserveUsdc.call()
+
+        assert.equal(web3.utils.fromWei(reserveEth.valueOf(), 'ether'), 2)
+        assert.equal(reserveUsdc.valueOf(), 4999)
+    })
+
+    it('Alice: check position and remain value after close 10x position.', async () => {
+        let accountRemainPositionValue = await lAmm.ethPositionRemainValueOf.call(alice)
+        let ethPositionValue = await lAmm.ethPositionValueOf.call(alice)
+        let usdcCash = await lAmm.usdcCashOf.call(alice)
+
+        assert.equal(accountRemainPositionValue.valueOf(), 510)
+        assert.equal(ethPositionValue.valueOf(), 0)
+        assert.equal(usdcCash.valueOf(), 51)
     })
 
 })

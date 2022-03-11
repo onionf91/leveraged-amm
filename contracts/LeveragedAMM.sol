@@ -112,4 +112,30 @@ contract LeveragedAMM is Ownable {
         _usdcPositionValue[_msgSender()] += positionValue;
         _usdcPosition[_msgSender()] += _doSwapUsdc(positionValue);
     }
+
+    function closeEthPosition(uint256 positionValue) public notOwner {
+        require(positionValue <= ethPositionValueOf(_msgSender()), "LeveragedAMM: out of position value");
+        uint256 closedPosition = (_ethPosition[_msgSender()] * positionValue) / _ethPositionValue[_msgSender()];
+        uint256 swappedUsdc = _doSwapUsdc(closedPosition);
+        _ethPositionValue[_msgSender()] -= positionValue;
+        _ethPosition[_msgSender()] -= closedPosition;
+        if (swappedUsdc >= positionValue) {
+            _usdcCash[_msgSender()] += swappedUsdc - positionValue;
+        } else {
+            _usdcCash[_msgSender()] -= positionValue - swappedUsdc;
+        }
+    }
+
+    function closeUsdcPosition(uint256 positionValue) public notOwner {
+        require(positionValue <= usdcPositionValueOf(_msgSender()), "LeveragedAMM: out of position value");
+        uint256 closedPosition = (_usdcPosition[_msgSender()] * positionValue) / _usdcPositionValue[_msgSender()];
+        uint256 swappedEth = _doSwapEth(closedPosition);
+        _usdcPositionValue[_msgSender()] -= positionValue;
+        _usdcPosition[_msgSender()] -= closedPosition;
+        if (swappedEth >= positionValue) {
+            _ethCash[_msgSender()] += swappedEth - positionValue;
+        } else {
+            _ethCash[_msgSender()] -= positionValue - swappedEth;
+        }
+    }
 }
