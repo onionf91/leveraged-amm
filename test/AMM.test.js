@@ -4,7 +4,7 @@ contract('AMM', (accounts) => {
     let amm
 
     it('Should put 10000 Rt and 1000 Ru in the contract.', async () => {
-        amm = await AMM.deployed();
+        amm = await AMM.deployed()
 
         let initRt = await amm.reserveTwd.call()
         let initRu = await amm.reserveUsd.call()
