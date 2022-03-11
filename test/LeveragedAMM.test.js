@@ -156,7 +156,7 @@ contract('LeveragedAMM', (accounts) => {
     })
 
     it('Alice: close left 5x position should also update reserves.', async () => {
-        await lAmm.closeEthPosition(250, {from: alice})
+        await lAmm.closeEthPosition(50 * 5, {from: alice})
 
         let reserveEth = await lAmm.reserveEth.call()
         let reserveUsdc = await lAmm.reserveUsdc.call()
