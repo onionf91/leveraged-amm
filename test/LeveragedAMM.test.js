@@ -86,4 +86,53 @@ contract('LeveragedAMM', (accounts) => {
     it('Estimate usdc position should revert while leveraged eth exceed reserve eth.', async () => {
         await catchRevert(lAmm.estimateUsdcPosition.call(web3.utils.toWei('1.0', 'ether'), 3))
     })
+
+    it('Alice: check position and remain value before open position.', async () => {
+        let accountRemainPositionValue = await lAmm.ethPositionRemainValueOf.call(alice)
+        let ethPositionValue = await lAmm.ethPositionValueOf.call(alice)
+
+        assert.equal(accountRemainPositionValue.valueOf(), 500)
+        assert.equal(ethPositionValue.valueOf(), 0)
+    })
+
+    it('Alice: open 8x position should also update reserves.', async () => {
+        await lAmm.openEthPosition(50 * 8, {from: alice})
+
+        let reserveEth = await lAmm.reserveEth.call()
+        let reserveUsdc = await lAmm.reserveUsdc.call()
+
+        assert.equal(web3.utils.fromWei(reserveEth.valueOf(), 'ether'), 1.851851851851851851)
+        assert.equal(reserveUsdc.valueOf(), 5400)
+    })
+
+    it('Alice: check position and remain value before open position.', async () => {
+        let accountRemainPositionValue = await lAmm.ethPositionRemainValueOf.call(alice)
+        let ethPositionValue = await lAmm.ethPositionValueOf.call(alice)
+
+        assert.equal(accountRemainPositionValue.valueOf(), 100)
+        assert.equal(ethPositionValue.valueOf(), 400)
+    })
+
+    it('Alice: open 2x position should also update reserves.', async () => {
+        await lAmm.openEthPosition(50 * 2, {from: alice})
+
+        let reserveEth = await lAmm.reserveEth.call()
+        let reserveUsdc = await lAmm.reserveUsdc.call()
+
+        assert.equal(web3.utils.fromWei(reserveEth.valueOf(), 'ether'), 1.81818181818181818)
+        assert.equal(reserveUsdc.valueOf(), 5500)
+    })
+
+    it('Alice: check position and remain value before open position.', async () => {
+        let accountRemainPositionValue = await lAmm.ethPositionRemainValueOf.call(alice)
+        let ethPositionValue = await lAmm.ethPositionValueOf.call(alice)
+
+        assert.equal(accountRemainPositionValue.valueOf(), 0)
+        assert.equal(ethPositionValue.valueOf(), 500)
+    })
+
+    it('Alice: open another position should failed.', async () => {
+        await catchRevert(lAmm.openEthPosition.call(50, {from: alice}))
+    })
+
 })

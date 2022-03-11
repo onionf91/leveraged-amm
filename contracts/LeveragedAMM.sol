@@ -13,6 +13,10 @@ contract LeveragedAMM is Ownable {
 
     mapping(address => uint256) private _usdcCash;
     mapping(address => uint256) private _ethCash;
+    mapping(address => uint256) private _usdcPositionValue;
+    mapping(address => uint256) private _ethPositionValue;
+    mapping(address => uint256) private _usdcPosition;
+    mapping(address => uint256) private _ethPosition;
 
     modifier notOwner() {
         require(owner() != _msgSender(), "LeverageAMM: caller is the owner");
@@ -59,6 +63,18 @@ contract LeveragedAMM is Ownable {
         return reserveUsdc - ((reserveUsdc * reserveEth) / (reserveEth + ethIn));
     }
 
+    function _doSwapEth(uint256 usdcIn) internal returns(uint256 ethOut) {
+        ethOut = _calculateSwappedEth(usdcIn);
+        reserveUsdc += usdcIn;
+        reserveEth -= ethOut;
+    }
+
+    function _doSwapUsdc(uint256 ethIn) internal returns(uint256 usdcOut) {
+        usdcOut = _calculateSwappedUsdc(ethIn);
+        reserveUsdc -= usdcOut;
+        reserveEth += ethIn;
+    }
+
     function estimateEthPosition(uint256 usdc, uint256 leverage) public view returns(uint256) {
         require(leverage <= maxLeverage, "LeveragedAMM: max leverage is 10.");
         return _calculateSwappedEth(usdc * leverage);
@@ -67,5 +83,33 @@ contract LeveragedAMM is Ownable {
     function estimateUsdcPosition(uint256 eth, uint256 leverage) public view returns(uint256) {
         require(leverage <= maxLeverage, "LeveragedAMM: max leverage is 10.");
         return _calculateSwappedUsdc(eth * leverage);
+    }
+
+    function ethPositionValueOf(address account) public view returns(uint256) {
+        return _ethPositionValue[account];
+    }
+
+    function ethPositionRemainValueOf(address account) public view returns(uint256) {
+        return (_usdcCash[account] * maxLeverage) - _ethPositionValue[account];
+    }
+
+    function usdcPositionValueOf(address account) public view returns(uint256) {
+        return _usdcPositionValue[account];
+    }
+
+    function usdcPositionRemainValueOf(address account) public view returns(uint256) {
+        return (_usdcCash[account] * maxLeverage) - _usdcPositionValue[account];
+    }
+
+    function openEthPosition(uint256 positionValue) public notOwner {
+        require(positionValue <= ethPositionRemainValueOf(_msgSender()), "LeveragedAMM: out of remain position value");
+        _ethPositionValue[_msgSender()] += positionValue;
+        _ethPosition[_msgSender()] += _doSwapEth(positionValue);
+    }
+
+    function openUsdcPosition(uint256 positionValue) public notOwner {
+        require(positionValue <= usdcPositionRemainValueOf(_msgSender()), "LeveragedAMM: out of remain position value");
+        _usdcPositionValue[_msgSender()] += positionValue;
+        _usdcPosition[_msgSender()] += _doSwapUsdc(positionValue);
     }
 }
