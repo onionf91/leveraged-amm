@@ -1,4 +1,15 @@
-# Perp Pretest
+# PoC: Leveraged AMM
+
+An automated market maker (AMM) is the underlying protocol
+that powers all decentralized exchanges (DEXs).
+
+In leveraged yield farming, users can borrow tokens to
+strengthen their farming positions and therefore, enjoy
+additional farming yields. The process is simple: in a
+leveraged yield farming protocol, users initially deposit
+any proportion of the two tokens. Users could deposit one
+of the two or a combination of both.
+
 
 ## Setup Environment
 
