@@ -19,7 +19,7 @@ Install `Truffle` via `npm` with global flag.
 npm install -g Truffle
 ```
 
-Install `OpenZeppelin` via `npm` in `perp-pretest` folder.
+Install `OpenZeppelin` via `npm` in `leveraged-amm` folder.
 
 ```bash
  npm install @openzeppelin/contracts
